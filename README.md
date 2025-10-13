@@ -5,7 +5,7 @@ A modern, AI-powered sustainable agriculture dashboard designed to help smallhol
 ![Harvest Dashboard](https://hebbkx1anhila5yf.public.blob.vercel-storage.com/inspooo-vG05PiEcV0bmM623C0XtqjfukpdsNA.jpg)
 
 ## 🚀 live link
-- https://v0-sustainable-agriculture-dashboar.vercel.app/
+- https://v0-sustainable-agriculture-dashboar-seven.vercel.app/
 
 ## ✨ Features
 
