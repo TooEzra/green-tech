@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card"
 import { Play } from "lucide-react"
 
+
 export function VerticalFarmCard() {
   return (
     <Card className="relative overflow-hidden bg-primary text-primary-foreground">

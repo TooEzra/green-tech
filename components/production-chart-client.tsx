@@ -1,45 +1,43 @@
-"use client"
+'use client'
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { Card } from "@/components/ui/card"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface ProductionChartClientProps {
-  data: Array<{
-    month: string
-    current: number
-    last: number
-  }>
+  data: Array<{ month: string; current: number; last: number }>
+  loading?: boolean
 }
 
-export function ProductionChartClient({ data }: ProductionChartClientProps) {
+export function ProductionChartClient({ data, loading = false }: ProductionChartClientProps) {
+  if (loading) {
+    return <div className="h-80 flex items-center justify-center">Loading chart...</div>
+  }
+
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data} barGap={4}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-border" />
-        <XAxis
-          dataKey="month"
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: "currentColor", fontSize: 12 }}
-          className="text-muted-foreground"
-        />
-        <YAxis
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: "currentColor", fontSize: 12 }}
-          className="text-muted-foreground"
-        />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "hsl(var(--card))",
-            border: "1px solid hsl(var(--border))",
-            borderRadius: "0.5rem",
-            padding: "0.75rem",
-          }}
-        />
-        <Legend wrapperStyle={{ paddingTop: "1rem" }} iconType="circle" />
-        <Bar dataKey="current" name="Current Year Production" fill="hsl(var(--chart-1))" radius={[8, 8, 0, 0]} />
-        <Bar dataKey="last" name="Last Year Production" fill="hsl(var(--chart-2))" radius={[8, 8, 0, 0]} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="h-80">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="month" />
+          <YAxis />
+          <Tooltip />
+          <Line 
+            type="monotone" 
+            dataKey="current" 
+            stroke="#22c55e" 
+            strokeWidth={3} 
+            name="This Year" 
+          />
+          <Line 
+            type="monotone" 
+            dataKey="last" 
+            stroke="#94a3b8" 
+            strokeWidth={2} 
+            strokeDasharray="5 5"
+            name="Last Year" 
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   )
 }

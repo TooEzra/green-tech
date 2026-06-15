@@ -1,41 +1,53 @@
+'use client'
+
 import { Card } from "@/components/ui/card"
 import { TrendingUp, ArrowUpRight } from "lucide-react"
-import { createClient } from "@/lib/supabase/server"
 import { ProductionChartClient } from "./production-chart-client"
+import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 
-export async function ProductionChart() {
-  const supabase = await createClient()
+export function ProductionChart() {
+  const [chartData, setChartData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Fetch production data for current and last year
-  const currentYear = new Date().getFullYear()
-  const lastYear = currentYear - 1
+  const supabase = createClient()
 
-  const { data: productionData } = await supabase
-    .from("production_data")
-    .select("*")
-    .in("year", [currentYear, lastYear])
-    .order("month", { ascending: true })
+  useEffect(() => {
+    async function fetchProductionData() {
+      try {
+        const currentYear = new Date().getFullYear()
+        const lastYear = currentYear - 1
 
-  // Transform data for chart
-  const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+        const { data: productionData } = await supabase
+          .from("production_data")
+          .select("*")
+          .in("year", [currentYear, lastYear])
+          .order("month", { ascending: true })
 
-  const chartData = monthNames.map((month, index) => {
-    const monthNum = index + 1
+        const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 
-    // Sum all crops for current year
-    const currentYearData = productionData?.filter((d) => d.year === currentYear && d.month === monthNum) || []
-    const currentTotal = currentYearData.reduce((sum, d) => sum + Number(d.yield_kg), 0)
+        const transformedData = monthNames.map((month, index) => {
+          const monthNum = index + 1
 
-    // Sum all crops for last year
-    const lastYearData = productionData?.filter((d) => d.year === lastYear && d.month === monthNum) || []
-    const lastTotal = lastYearData.reduce((sum, d) => sum + Number(d.yield_kg), 0)
+          const currentYearData = productionData?.filter((d: any) => d.year === currentYear && d.month === monthNum) || []
+          const currentTotal = currentYearData.reduce((sum: number, d: any) => sum + Number(d.yield_kg || 0), 0)
 
-    return {
-      month,
-      current: currentTotal,
-      last: lastTotal,
+          const lastYearData = productionData?.filter((d: any) => d.year === lastYear && d.month === monthNum) || []
+          const lastTotal = lastYearData.reduce((sum: number, d: any) => sum + Number(d.yield_kg || 0), 0)
+
+          return { month, current: currentTotal, last: lastTotal }
+        })
+
+        setChartData(transformedData)
+      } catch (error) {
+        console.error("Failed to fetch production data:", error)
+      } finally {
+        setLoading(false)
+      }
     }
-  })
+
+    fetchProductionData()
+  }, [supabase])
 
   return (
     <Card className="p-6">
@@ -53,7 +65,7 @@ export async function ProductionChart() {
 
       <div className="mb-4 text-sm text-muted-foreground">Comparing with last year</div>
 
-      <ProductionChartClient data={chartData} />
+      <ProductionChartClient data={chartData} loading={loading} />
     </Card>
   )
 }
